@@ -39,10 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'pizza.apps.PizzaConfig',
     'rest_framework',
-    'django_filters'
+    'django_filters',
+    'aws_xray_sdk.ext.django',
 ]
 
 MIDDLEWARE = [
+    'aws_xray_sdk.ext.django.middleware.XRayMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -77,11 +79,11 @@ WSGI_APPLICATION = 'mypizza_app.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-      'default': {
-          'ENGINE': 'djongo',
-          'NAME': 'prayaag',
-      }
-  }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
 # Password validation
@@ -133,4 +135,17 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny'
     ]
+}
+
+
+XRAY_RECORDER = {
+    'AWS_XRAY_DAEMON_ADDRESS': '127.0.0.1:2000',
+    'AUTO_INSTRUMENT': True,  # If turned on built-in database queries and template rendering will be recorded as subsegments
+    'AWS_XRAY_CONTEXT_MISSING': 'LOG_ERROR',
+    'PLUGINS': (),
+    'SAMPLING': True,
+    'SAMPLING_RULES': None,
+    'AWS_XRAY_TRACING_NAME': 'sample_app', # the segment name for segments generated from incoming requests
+    'DYNAMIC_NAMING': None, # defines a pattern that host names should match
+    'STREAMING_THRESHOLD': None, # defines when a segment starts to stream out its children subsegments
 }
